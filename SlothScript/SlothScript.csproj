@@ -35,6 +35,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AST\AstBinaryExpr.cs" />
+    <Compile Include="AST\AstLeaf.cs" />
+    <Compile Include="AST\AstList.cs" />
+    <Compile Include="AST\AstNode.cs" />
+    <Compile Include="AST\AstTokens.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner.cs" />

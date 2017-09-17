@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SlothScript.AST;
 
 namespace SlothScript
 {
@@ -21,9 +22,8 @@ namespace SlothScript
         public RunTimeException(string msg, Exception inner) : base(msg, inner)
         { }
 
-        //public RunTimeException(string msg, ASTree t) : base(msg + " " + t.GetLocation())
-        //{
-        //}
+        public RunTimeException(string msg, AstNode t) : base(msg + " " + t.GetLocation())
+        { }
     }
 
     /// <summary>

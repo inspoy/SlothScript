@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using SlothScript;
 
 namespace UnitRunner
@@ -55,15 +56,15 @@ return sum; // 返回结果
             }
             catch (RunTimeException e)
             {
-                Console.WriteLine("解释器运行时错误" + e.Message);
+                Console.WriteLine("解释器运行时错误: " + e.Message);
             }
             catch (ParseException e)
             {
-                Console.WriteLine("词法解析时出错" + e.Message);
+                Console.WriteLine("词法解析时出错: " + e.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("其他错误" + e.Message);
+                Console.WriteLine("其他错误: " + e.Message);
             }
 
             Console.ReadKey();

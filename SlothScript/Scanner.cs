@@ -10,19 +10,14 @@ namespace SlothScript
     /// </summary>
     public class Scanner
     {
-        public static string REGEX_COMMET = @"(//.*)";
-        public static string REGEX_ID = @"([A-Z_a-z]\w*)";
-        public static string REGEX_NUMBER = @"(\d+)";
-        public static string REGEX_STRING = @"(""(\\*|\\\\|\\n|[^""])*"")";
-        public static string REGEX_PUNCT = @"(==|<=|>=|&&|\|\||[+\-\*/<>=\.;])";
+        public static string REGEX_COMMET = @"(?<com>//.*)";
+        public static string REGEX_ID = @"(?<id>[A-Z_a-z]\w*)";
+        public static string REGEX_NUMBER = @"(?<num>\d+)";
+        public static string REGEX_STRING = @"(?<str>""(\\*|\\\\|\\n|[^""])*"")";
+        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=\.;])";
         public static string REGEX_TOTAL = @"\s*(" + REGEX_COMMET + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" + REGEX_STRING + "|" + REGEX_PUNCT + ")?";
 
         private Regex m_pattern;
-        private Regex m_patternComment;
-        private Regex m_patternId;
-        private Regex m_patternNumber;
-        private Regex m_patternString;
-        private Regex m_patternPunct;
         private List<Token> m_tokenQueue;
         private bool m_hasMore;
         private List<string> m_fileData;
@@ -34,12 +29,7 @@ namespace SlothScript
         /// <param name="src">脚本源代码</param>
         public Scanner(string src)
         {
-            m_pattern = new Regex(REGEX_TOTAL);
-            m_patternComment = new Regex(REGEX_COMMET);
-            m_patternId = new Regex(REGEX_ID);
-            m_patternNumber = new Regex(REGEX_NUMBER);
-            m_patternString = new Regex(REGEX_STRING);
-            m_patternPunct = new Regex(REGEX_PUNCT);
+            m_pattern = new Regex(REGEX_TOTAL, RegexOptions.Compiled);
             m_tokenQueue = new List<Token>();
             m_hasMore = true;
             src = src.Replace("\r\n", "\n");
@@ -126,7 +116,7 @@ namespace SlothScript
                     // 空语句
                     continue;
                 }
-                AddToken(m_readingPos, trimed);
+                AddToken(m_readingPos, item);
                 info.Append(" [");
                 info.Append(trimed);
                 info.Append("]");
@@ -142,22 +132,24 @@ namespace SlothScript
         /// </summary>
         /// <param name="lineNumber">Token所在行号</param>
         /// <param name="item">Token源字符串</param>
-        private void AddToken(int lineNumber, string item)
+        private void AddToken(int lineNumber, Match item)
         {
             Token token = null;
-            if (m_patternComment.IsMatch(item))
+            string strValue = item.Value.Trim();
+            var groups = item.Groups;
+            if (groups["com"].Success)
             {
                 // 注释，忽略掉
             }
-            else if (m_patternId.IsMatch(item))
+            else if (groups["id"].Success)
             {
                 // 标识符
-                token = new IdToken(lineNumber, item);
+                token = new IdToken(lineNumber, strValue);
             }
-            else if (m_patternNumber.IsMatch(item))
+            else if (groups["num"].Success)
             {
                 // 整形字面量
-                if (int.TryParse(item, out int val))
+                if (int.TryParse(strValue, out int val))
                 {
                     token = new NumToken(lineNumber, val);
                 }
@@ -166,15 +158,15 @@ namespace SlothScript
                     throw new ParseException("解析整形字面量失败");
                 }
             }
-            else if (m_patternString.IsMatch(item))
+            else if (groups["str"].Success)
             {
                 // 字符串字面量
-                token = new StrToken(lineNumber, item);
+                token = new StrToken(lineNumber, strValue);
             }
-            else if (m_patternPunct.IsMatch(item))
+            else if (groups["pun"].Success)
             {
                 // 运算符
-                token = new PunToken(lineNumber, item);
+                token = new PunToken(lineNumber, strValue);
             }
             if (token != null)
             {
