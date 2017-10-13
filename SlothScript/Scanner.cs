@@ -14,8 +14,12 @@ namespace SlothScript
         public static string REGEX_ID = @"(?<id>[A-Z_a-z]\w*)";
         public static string REGEX_NUMBER = @"(?<num>\d+)";
         public static string REGEX_STRING = @"(?<str>""(\\*|\\\\|\\n|[^""])*"")";
-        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=\.;])";
-        public static string REGEX_TOTAL = @"\s*(" + REGEX_COMMET + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" + REGEX_STRING + "|" + REGEX_PUNCT + ")?";
+        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=\.%])";
+        public static string REGEX_KEY = @"(?<key>while|if|do|end|return)";
+        public static string REGEX_SEP = @"(?<sep>;)";
+        public static string REGEX_TOTAL = @"\s*(" +
+            REGEX_COMMET +"|" + REGEX_KEY + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" +
+            REGEX_STRING + "|" + REGEX_PUNCT + "|" + REGEX_SEP +")?";
 
         private Regex m_pattern;
         private List<Token> m_tokenQueue;
@@ -167,6 +171,16 @@ namespace SlothScript
             {
                 // 运算符
                 token = new PunToken(lineNumber, strValue);
+            }
+            else if (groups["key"].Success)
+            {
+                // 关键字
+                token = new KeyToken(lineNumber, strValue);
+            }
+            else if (groups["sep"].Success)
+            {
+                // 分号
+                token = new SepToken(lineNumber);
             }
             if (token != null)
             {

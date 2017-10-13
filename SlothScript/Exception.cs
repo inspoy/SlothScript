@@ -27,7 +27,7 @@ namespace SlothScript
     }
 
     /// <summary>
-    /// 解析词法时错误
+    /// 解析时错误
     /// </summary>
     public class ParseException : Exception
     {

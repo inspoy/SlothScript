@@ -5,9 +5,18 @@ using System.Text;
 namespace SlothScript.AST
 {
     /// <summary>
+    /// 运算子
+    /// </summary>
+    public class AstFactor : AstLeaf
+    {
+        public AstFactor(Token t) : base(t)
+        { }
+    }
+
+    /// <summary>
     /// 整形字面量
     /// </summary>
-    public class AstNumberLiteral : AstLeaf
+    public class AstNumberLiteral : AstFactor
     {
         public AstNumberLiteral(Token t) : base(t)
         { }
@@ -17,10 +26,26 @@ namespace SlothScript.AST
     /// <summary>
     /// 变量名
     /// </summary>
-    public class AstName : AstLeaf
+    public class AstName : AstFactor
     {
         public AstName(Token t) : base(t)
         { }
         public string name { get => token.GetText(); }
+    }
+
+    /// <summary>
+    /// 字符串字面量
+    /// </summary>
+    public class AstString : AstFactor
+    {
+        public AstString(Token t) : base(t)
+        { }
+        public string str { get => token.GetText(); }
+    }
+
+    public class AstPun : AstLeaf
+    {
+        public AstPun(Token t) : base(t)
+        { }
     }
 }

@@ -12,11 +12,7 @@ namespace SlothScript.AST
         protected List<AstNode> m_children;
         public AstList(List<AstNode> list)
         {
-            if (list == null)
-            {
-                throw new RunTimeException("AstList构造参数为空");
-            }
-            m_children = list;
+            m_children = list ?? throw new RunTimeException("AstList构造参数为空");
         }
 
         public override AstNode ChildAt(int idx)

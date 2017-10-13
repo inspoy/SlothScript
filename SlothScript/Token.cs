@@ -149,4 +149,33 @@ namespace SlothScript
             return m_punct;
         }
     }
+
+    /// <summary>
+    /// 关键字Token
+    /// </summary>
+    public class KeyToken : Token
+    {
+        private string m_string;
+        public KeyToken(int line, string value) : base(line)
+        {
+            m_string = value;
+        }
+        public override string GetText()
+        {
+            return m_string;
+        }
+    }
+
+    /// <summary>
+    /// 分隔符Token，即分号';'
+    /// </summary>
+    public class SepToken : Token
+    {
+        public SepToken(int line) : base(line)
+        { }
+        public override string GetText()
+        {
+            return ";";
+        }
+    }
 }

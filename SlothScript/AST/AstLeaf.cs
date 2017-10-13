@@ -34,7 +34,7 @@ namespace SlothScript.AST
 
         public override string GetLocation()
         {
-            return "at line ";
+            return "at line " + m_token.lineNumber.ToString();
         }
 
         public override string ToString()

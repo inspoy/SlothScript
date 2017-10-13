@@ -15,9 +15,11 @@ namespace UnitRunner
 sum = 0;
 i = 0;
 while i < 10 do
-  sum = sum + i;
+  if i % 2 == 0 do
+    sum = sum + i; // 计算2+4+6...
+  end;
   i = i + 1; // 循环计数器
-end
+end;
 return sum; // 返回结果
 ";
 
@@ -28,13 +30,25 @@ return sum; // 返回结果
         {
             var scanner = new Scanner(TEST_SCRIPT);
             Token t;
-            string res = "";
+            StringBuilder res = new StringBuilder();
             do
             {
                 t = scanner.Read();
-                res += t.GetText() + " ";
+                string typeString = t.GetType().ToString();
+                res.Append("<" + typeString.Substring(12, typeString.Length - 17) + ":" + t.GetText() + ">");
             } while (t != Token.EOF);
             Console.WriteLine(res);
+        }
+
+        /// <summary>
+        /// 测试语法分析器
+        /// </summary>
+        public void RunParser()
+        {
+            var scanner = new Scanner(TEST_SCRIPT);
+            var parser = new Parser(scanner);
+            var prog = parser.DoParse();
+            Console.WriteLine(prog.ToString());
         }
     }
 
