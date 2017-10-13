@@ -7,7 +7,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 运算表达式，包含赋值操作
     /// </summary>
-    public class AstExpression : AstList
+    public sealed class AstExpression : AstList
     {
         public AstExpression(List<AstNode> list) : base(list)
         { }

@@ -64,7 +64,7 @@ namespace SlothScript
                 else if (t.tokenType == TokenType.STRING)
                 {
                     // 字符串
-                    return new AstString(t);
+                    return new AstStringLiteral(t);
                 }
                 else
                 {
@@ -97,9 +97,9 @@ namespace SlothScript
                 // 下一个Token是分号
                 Pass(";", TokenType.SEPERATOR);
             }
-            else if (Is("do", TokenType.KEYWORD))
+            else if (Is("do", TokenType.KEYWORD) || Is(")", TokenType.SEPERATOR))
             {
-                // 下一个Token是关键词'do'
+                // 下一个Token是关键词'do'或者右括号')'
             }
             else
             {
@@ -107,7 +107,7 @@ namespace SlothScript
                 throw new ParseException(m_scanner.Peek(0), "Missing Semicolon");
             }
             var ret = new AstExpression(list);
-            Utils.LogInfo("表达式: {0}", ret.ToString());
+            Utils.LogInfo("[P] 表达式: {0}", ret.ToString());
             return ret;
         }
 
@@ -130,7 +130,7 @@ namespace SlothScript
                 Pass("end", TokenType.KEYWORD);
                 Pass(";", TokenType.SEPERATOR);
                 var ret = new AstWhile(list, condition);
-                Utils.LogInfo("while语句: {0}", ret.ToString());
+                Utils.LogInfo("[P] while语句: {0}", ret.ToString());
                 return ret;
             }
             if (Is("if", TokenType.KEYWORD))
@@ -140,10 +140,16 @@ namespace SlothScript
                 AstExpression condition = DoExpression();
                 Pass("do", TokenType.KEYWORD);
                 List<AstNode> list = DoBlock();
+                List<AstNode> elseList = null;
+                if (Is("else", TokenType.KEYWORD))
+                {
+                    // 有else块
+                    elseList = DoBlock();
+                }
                 Pass("end", TokenType.KEYWORD);
                 Pass(";", TokenType.SEPERATOR);
-                var ret = new AstIf(list, condition);
-                Utils.LogInfo("if语句: {0}", ret.ToString());
+                var ret = new AstIf(list, condition, elseList);
+                Utils.LogInfo("[P] if语句: {0}", ret.ToString());
                 return ret;
             }
             if (Is("return", TokenType.KEYWORD))
@@ -152,7 +158,7 @@ namespace SlothScript
                 Pass("return", TokenType.KEYWORD);
                 AstExpression expr = DoExpression();
                 var ret = new AstReturn(new List<AstNode>(), expr);
-                Utils.LogInfo("return语句: {0}", ret.ToString());
+                Utils.LogInfo("[P] return语句: {0}", ret.ToString());
                 return ret;
             }
             throw new ParseException(m_scanner.Peek(0), "Unknown statement");
@@ -173,9 +179,9 @@ namespace SlothScript
                     // 文件结束
                     break;
                 }
-                if (Is("end", TokenType.KEYWORD))
+                if (Is("end", TokenType.KEYWORD) || Is("else", TokenType.KEYWORD))
                 {
-                    // 遇到了end关键字
+                    // 遇到了end或else关键字
                     break;
                 }
                 if (Is("while", TokenType.KEYWORD) || Is("if", TokenType.KEYWORD) || Is("return", TokenType.KEYWORD))

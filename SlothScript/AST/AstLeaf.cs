@@ -7,7 +7,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 所有叶子节点（标识符，字面量）的父类
     /// </summary>
-    public class AstLeaf : AstNode
+    public abstract class AstLeaf : AstNode
     {
         private static List<AstNode> EMPTY = new List<AstNode>();
         public Token token { get => m_token; }

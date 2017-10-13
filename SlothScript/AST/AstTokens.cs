@@ -7,7 +7,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 运算子
     /// </summary>
-    public class AstFactor : AstLeaf
+    public abstract class AstFactor : AstLeaf
     {
         public AstFactor(Token t) : base(t)
         { }
@@ -16,7 +16,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 整形字面量
     /// </summary>
-    public class AstNumberLiteral : AstFactor
+    public sealed class AstNumberLiteral : AstFactor
     {
         public AstNumberLiteral(Token t) : base(t)
         { }
@@ -26,7 +26,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 标识符
     /// </summary>
-    public class AstIdentifier : AstFactor
+    public sealed class AstIdentifier : AstFactor
     {
         public AstIdentifier(Token t) : base(t)
         { }
@@ -36,9 +36,9 @@ namespace SlothScript.AST
     /// <summary>
     /// 字符串字面量
     /// </summary>
-    public class AstString : AstFactor
+    public sealed class AstStringLiteral : AstFactor
     {
-        public AstString(Token t) : base(t)
+        public AstStringLiteral(Token t) : base(t)
         { }
         public string str { get => token.GetText(); }
     }
@@ -46,7 +46,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 运算符
     /// </summary>
-    public class AstPun : AstLeaf
+    public sealed class AstPun : AstLeaf
     {
         public AstPun(Token t) : base(t)
         { }

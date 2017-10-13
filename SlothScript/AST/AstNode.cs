@@ -15,6 +15,15 @@ namespace SlothScript.AST
         public abstract IEnumerator<AstNode> GetEnumerator();
         public abstract string GetLocation();
 
+        /// <summary>
+        /// 求代码块的值
+        /// </summary>
+        /// <returns></returns>
+        public EvalValue Eval()
+        {
+            return Evaluator.Eval(this);
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

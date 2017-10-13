@@ -7,7 +7,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 所有含有树枝的节点的父类
     /// </summary>
-    public class AstList : AstNode
+    public abstract class AstList : AstNode
     {
         protected List<AstNode> m_children;
         public AstList(List<AstNode> list)

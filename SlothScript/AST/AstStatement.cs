@@ -5,7 +5,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 语句,包括if,while,return
     /// </summary>
-    public class AstStatement : AstList
+    public abstract class AstStatement : AstList
     {
         public AstStatement(List<AstNode> list) : base(list)
         { }
@@ -14,7 +14,7 @@ namespace SlothScript.AST
     /// <summary>
     /// while语句
     /// </summary>
-    public class AstWhile : AstStatement
+    public sealed class AstWhile : AstStatement
     {
         private AstExpression m_condition;
 
@@ -32,18 +32,26 @@ namespace SlothScript.AST
         {
             return string.Format("(<while>{0}=>{1})", m_condition.ToString(), base.ToString());
         }
+
+        public AstExpression condition { get => m_condition; }
     }
 
     /// <summary>
     /// if语句
     /// </summary>
-    public class AstIf : AstStatement
+    public sealed class AstIf : AstStatement
     {
         private AstExpression m_condition;
+        AstElse m_elseBlock;
 
-        public AstIf(List<AstNode> list, AstExpression condition) : base(list)
+        public AstIf(List<AstNode> list, AstExpression condition, List<AstNode> elseList) : base(list)
         {
             m_condition = condition;
+            m_elseBlock = null;
+            if (elseList != null)
+            {
+                m_elseBlock = new AstElse(elseList);
+            }
         }
 
         public override string GetLocation()
@@ -55,12 +63,25 @@ namespace SlothScript.AST
         {
             return string.Format("(<if>{0}=>{1})", m_condition.ToString(), base.ToString());
         }
+
+        public AstExpression condition { get => m_condition; }
+
+        public AstElse elseBlock { get => m_elseBlock; }
+    }
+
+    /// <summary>
+    /// if语句的else块
+    /// </summary>
+    public sealed class AstElse : AstList
+    {
+        public AstElse(List<AstNode> list) : base(list)
+        { }
     }
 
     /// <summary>
     /// return语句
     /// </summary>
-    public class AstReturn : AstStatement
+    public sealed class AstReturn : AstStatement
     {
         private AstExpression m_result;
 
@@ -78,5 +99,7 @@ namespace SlothScript.AST
         {
             return string.Format("(<return>{0})", m_result.ToString());
         }
+
+        public AstExpression result { get => m_result; }
     }
 }
