@@ -31,10 +31,23 @@ namespace SlothScript
         public EvalValueType type = EvalValueType.INT;
         public int intVal = 0;
         public string strVal = "";
-        public bool hasReturned = false;
+        // 下面这个字段用于标识是否应该直接中断执行
+        //public bool hasReturned = false;
+
+        public override string ToString()
+        {
+            if (type == EvalValueType.INT)
+            {
+                return intVal.ToString();
+            }
+            else
+            {
+                return strVal;
+            }
+        }
     }
 
-    public static class Evaluator
+    internal static class Evaluator
     {
         /// <summary>
         /// 对节点进行求值
@@ -80,7 +93,7 @@ namespace SlothScript
             {
                 throw new RunTimeException("非法节点类型: " + ast.GetType().ToString(), ast);
             }
-            Utils.LogInfo("[R] 正在计算[{0}]{1}的值，结果为：{2}", ast.GetType().ToString(), ast.ToString(), result);
+            Utils.LogDebug("[R] 正在计算[{0}]{1}的值，结果为：{2}", ast.GetType(), ast, result);
             return result;
         }
 
@@ -159,7 +172,7 @@ namespace SlothScript
         {
             var ret = ast.result.Eval();
             // TODO: 将ret放到虚拟机中，并中断执行
-            ret.hasReturned = true;
+            //ret.hasReturned = true;
             return ret;
         }
 

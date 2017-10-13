@@ -50,10 +50,10 @@ return ans;
         /// </summary>
         public void RunParser()
         {
-            var scanner = new Scanner(TEST_SCRIPT2);
+            var scanner = new Scanner(TEST_SCRIPT1);
             var parser = new Parser(scanner);
-            var prog = parser.DoParse();
-            Console.WriteLine(prog.ToString());
+            //Console.WriteLine(parser.GetDumpString());
+            Console.WriteLine("执行结果:" + parser.GetResult());
         }
     }
 

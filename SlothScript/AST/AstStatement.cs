@@ -5,7 +5,7 @@ namespace SlothScript.AST
     /// <summary>
     /// 语句,包括if,while,return
     /// </summary>
-    public abstract class AstStatement : AstList
+    internal abstract class AstStatement : AstList
     {
         public AstStatement(List<AstNode> list) : base(list)
         { }
@@ -14,7 +14,7 @@ namespace SlothScript.AST
     /// <summary>
     /// while语句
     /// </summary>
-    public sealed class AstWhile : AstStatement
+    internal sealed class AstWhile : AstStatement
     {
         private AstExpression m_condition;
 
@@ -39,7 +39,7 @@ namespace SlothScript.AST
     /// <summary>
     /// if语句
     /// </summary>
-    public sealed class AstIf : AstStatement
+    internal sealed class AstIf : AstStatement
     {
         private AstExpression m_condition;
         AstElse m_elseBlock;
@@ -72,7 +72,7 @@ namespace SlothScript.AST
     /// <summary>
     /// if语句的else块
     /// </summary>
-    public sealed class AstElse : AstList
+    internal sealed class AstElse : AstList
     {
         public AstElse(List<AstNode> list) : base(list)
         { }
@@ -81,7 +81,7 @@ namespace SlothScript.AST
     /// <summary>
     /// return语句
     /// </summary>
-    public sealed class AstReturn : AstStatement
+    internal sealed class AstReturn : AstStatement
     {
         private AstExpression m_result;
 

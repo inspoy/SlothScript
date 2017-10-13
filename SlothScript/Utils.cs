@@ -13,7 +13,7 @@ namespace SlothScript
         /// 输出调试信息
         /// </summary>
         /// <param name="msg"></param>
-        public static void LogInfo(string msg)
+        public static void LogDebug(string msg)
         {
             Console.WriteLine("[SlothScript] - " + msg);
         }
@@ -23,7 +23,7 @@ namespace SlothScript
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public static void LogInfo(string format, params object[] args)
+        public static void LogDebug(string format, params object[] args)
         {
             Console.WriteLine("[SlothScript] - " + string.Format(format, args));
         }

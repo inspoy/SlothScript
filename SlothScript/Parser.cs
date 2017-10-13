@@ -1,5 +1,6 @@
 ﻿using SlothScript.AST;
 using System.Collections.Generic;
+using System;
 
 namespace SlothScript
 {
@@ -19,7 +20,7 @@ namespace SlothScript
         /// 执行解析
         /// </summary>
         /// <returns></returns>
-        public AstProg DoParse()
+        private AstProg DoParse()
         {
             /**
              * 语法BNF
@@ -107,7 +108,7 @@ namespace SlothScript
                 throw new ParseException(m_scanner.Peek(0), "Missing Semicolon");
             }
             var ret = new AstExpression(list);
-            Utils.LogInfo("[P] 表达式: {0}", ret.ToString());
+            Utils.LogDebug("[P] 表达式: {0}", ret.ToString());
             return ret;
         }
 
@@ -130,7 +131,7 @@ namespace SlothScript
                 Pass("end", TokenType.KEYWORD);
                 Pass(";", TokenType.SEPERATOR);
                 var ret = new AstWhile(list, condition);
-                Utils.LogInfo("[P] while语句: {0}", ret.ToString());
+                Utils.LogDebug("[P] while语句: {0}", ret.ToString());
                 return ret;
             }
             if (Is("if", TokenType.KEYWORD))
@@ -149,7 +150,7 @@ namespace SlothScript
                 Pass("end", TokenType.KEYWORD);
                 Pass(";", TokenType.SEPERATOR);
                 var ret = new AstIf(list, condition, elseList);
-                Utils.LogInfo("[P] if语句: {0}", ret.ToString());
+                Utils.LogDebug("[P] if语句: {0}", ret.ToString());
                 return ret;
             }
             if (Is("return", TokenType.KEYWORD))
@@ -158,7 +159,7 @@ namespace SlothScript
                 Pass("return", TokenType.KEYWORD);
                 AstExpression expr = DoExpression();
                 var ret = new AstReturn(new List<AstNode>(), expr);
-                Utils.LogInfo("[P] return语句: {0}", ret.ToString());
+                Utils.LogDebug("[P] return语句: {0}", ret.ToString());
                 return ret;
             }
             throw new ParseException(m_scanner.Peek(0), "Unknown statement");
@@ -234,6 +235,24 @@ namespace SlothScript
             {
                 throw new ParseException(t, "非法的Token: " + name);
             }
+        }
+
+        /// <summary>
+        /// [测试用]生成语法树生成的字符串
+        /// </summary>
+        /// <returns></returns>
+        public string GetDumpString()
+        {
+            return DoParse().ToString();
+        }
+
+        /// <summary>
+        /// [测试用]获取程序返回值
+        /// </summary>
+        /// <returns></returns>
+        public string GetResult()
+        {
+            return DoParse().Eval().ToString();
         }
     }
 }
