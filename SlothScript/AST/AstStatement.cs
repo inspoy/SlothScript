@@ -8,8 +8,7 @@ namespace SlothScript.AST
     public class AstStatement : AstList
     {
         public AstStatement(List<AstNode> list) : base(list)
-        {
-        }
+        { }
     }
 
     /// <summary>
@@ -22,6 +21,16 @@ namespace SlothScript.AST
         public AstWhile(List<AstNode> list, AstExpression condition) : base(list)
         {
             m_condition = condition;
+        }
+
+        public override string GetLocation()
+        {
+            return m_condition.GetLocation();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("(<while>{0}=>{1})", m_condition.ToString(), base.ToString());
         }
     }
 
@@ -36,6 +45,16 @@ namespace SlothScript.AST
         {
             m_condition = condition;
         }
+
+        public override string GetLocation()
+        {
+            return m_condition.GetLocation();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("(<if>{0}=>{1})", m_condition.ToString(), base.ToString());
+        }
     }
 
     /// <summary>
@@ -48,6 +67,16 @@ namespace SlothScript.AST
         public AstReturn(List<AstNode> list, AstExpression result) : base(list)
         {
             m_result = result;
+        }
+
+        public override string GetLocation()
+        {
+            return m_result.GetLocation();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("(<return>{0})", m_result.ToString());
         }
     }
 }

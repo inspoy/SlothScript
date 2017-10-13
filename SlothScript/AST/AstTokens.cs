@@ -24,11 +24,11 @@ namespace SlothScript.AST
     }
 
     /// <summary>
-    /// 变量名
+    /// 标识符
     /// </summary>
-    public class AstName : AstFactor
+    public class AstIdentifier : AstFactor
     {
-        public AstName(Token t) : base(t)
+        public AstIdentifier(Token t) : base(t)
         { }
         public string name { get => token.GetText(); }
     }
@@ -43,9 +43,13 @@ namespace SlothScript.AST
         public string str { get => token.GetText(); }
     }
 
+    /// <summary>
+    /// 运算符
+    /// </summary>
     public class AstPun : AstLeaf
     {
         public AstPun(Token t) : base(t)
         { }
+        public string pun { get => token.GetText(); }
     }
 }

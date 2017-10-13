@@ -11,7 +11,7 @@ namespace UnitRunner
     /// </summary>
     class Runner
     {
-        private static string TEST_SCRIPT = @"
+        private static string TEST_SCRIPT1 = @"
 sum = 0;
 i = 0;
 while i < 10 do
@@ -22,13 +22,18 @@ while i < 10 do
 end;
 return sum; // 返回结果
 ";
-
+        private static string TEST_SCRIPT2 = @"
+ans = 5 * ((-2) + 3);
+ans = ans * (-1);
+ans = ans - (-3) * 5;
+return ans;
+";
         /// <summary>
         /// 测试词法分析器
         /// </summary>
         public void RunScanner()
         {
-            var scanner = new Scanner(TEST_SCRIPT);
+            var scanner = new Scanner(TEST_SCRIPT2);
             Token t;
             StringBuilder res = new StringBuilder();
             do
@@ -45,7 +50,7 @@ return sum; // 返回结果
         /// </summary>
         public void RunParser()
         {
-            var scanner = new Scanner(TEST_SCRIPT);
+            var scanner = new Scanner(TEST_SCRIPT1);
             var parser = new Parser(scanner);
             var prog = parser.DoParse();
             Console.WriteLine(prog.ToString());
@@ -66,7 +71,7 @@ return sum; // 返回结果
             try
             {
                 var runner = new Runner();
-                runner.RunScanner();
+                runner.RunParser();
             }
             catch (RunTimeException e)
             {
@@ -74,7 +79,8 @@ return sum; // 返回结果
             }
             catch (ParseException e)
             {
-                Console.WriteLine("词法解析时出错: " + e.Message);
+                Console.WriteLine("解析时出错: " + e.Message);
+                Console.WriteLine(e.StackTrace);
             }
             catch (Exception e)
             {

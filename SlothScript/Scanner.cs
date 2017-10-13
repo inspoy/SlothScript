@@ -12,14 +12,15 @@ namespace SlothScript
     {
         public static string REGEX_COMMET = @"(?<com>//.*)";
         public static string REGEX_ID = @"(?<id>[A-Z_a-z]\w*)";
-        public static string REGEX_NUMBER = @"(?<num>\d+)";
+        public static string REGEX_NUMBER = @"(?<num>(\d+)|(\(\-\d+)\))";
         public static string REGEX_STRING = @"(?<str>""(\\*|\\\\|\\n|[^""])*"")";
-        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=\.%])";
+        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=%])";
         public static string REGEX_KEY = @"(?<key>while|if|do|end|return)";
-        public static string REGEX_SEP = @"(?<sep>;)";
+        public static string REGEX_SEP = @"(?<sep>[;\(\)])";
+        public static string REGEX_OTHER = @"(?<other>.*)";
         public static string REGEX_TOTAL = @"\s*(" +
-            REGEX_COMMET +"|" + REGEX_KEY + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" +
-            REGEX_STRING + "|" + REGEX_PUNCT + "|" + REGEX_SEP +")?";
+            REGEX_COMMET + "|" + REGEX_KEY + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" +
+            REGEX_STRING + "|" + REGEX_PUNCT + "|" + REGEX_SEP + "|" + REGEX_OTHER + ")?";
 
         private Regex m_pattern;
         private List<Token> m_tokenQueue;
@@ -153,12 +154,25 @@ namespace SlothScript
             else if (groups["num"].Success)
             {
                 // 整形字面量
-                if (int.TryParse(strValue, out int val))
+                bool succ = false;
+                if (strValue.StartsWith("(-"))
+                {
+                    // 负数
+                    string fixedStrValue = strValue.Substring(2,strValue.Length-3);
+                    if (int.TryParse(fixedStrValue, out int val))
+                    {
+                        token = new NumToken(lineNumber, -val);
+                        succ = true;
+                    }
+                }
+                else if (int.TryParse(strValue, out int val))
                 {
                     token = new NumToken(lineNumber, val);
+                    succ = true;
                 }
-                else
+                if (!succ)
                 {
+                    // 解析未成功
                     throw new ParseException("解析整形字面量失败");
                 }
             }
@@ -179,8 +193,13 @@ namespace SlothScript
             }
             else if (groups["sep"].Success)
             {
-                // 分号
-                token = new SepToken(lineNumber);
+                // 分号和括号
+                token = new SepToken(lineNumber, strValue);
+            }
+            else if (groups["other"].Success)
+            {
+                // 不能识别的字符
+                throw new ParseException(new StrToken(lineNumber, strValue), "非法字符");
             }
             if (token != null)
             {

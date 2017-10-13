@@ -30,6 +30,16 @@ namespace SlothScript
         /// 标点符号
         /// </summary>
         PUNCT = 4,
+
+        /// <summary>
+        /// 关键字
+        /// </summary>
+        KEYWORD = 5,
+
+        /// <summary>
+        /// 分隔符
+        /// </summary>
+        SEPERATOR = 6,
     }
 
     /// <summary>
@@ -75,6 +85,11 @@ namespace SlothScript
     {
         public EofToken(int line) : base(line)
         {
+            m_tokenType = TokenType.INVALID;
+        }
+        public override string GetText()
+        {
+            return "EOF";
         }
     }
 
@@ -158,6 +173,7 @@ namespace SlothScript
         private string m_string;
         public KeyToken(int line, string value) : base(line)
         {
+            m_tokenType = TokenType.KEYWORD;
             m_string = value;
         }
         public override string GetText()
@@ -167,15 +183,19 @@ namespace SlothScript
     }
 
     /// <summary>
-    /// 分隔符Token，即分号';'
+    /// 分隔符Token，包括分号';'和括号'(',')'
     /// </summary>
     public class SepToken : Token
     {
-        public SepToken(int line) : base(line)
-        { }
+        private string m_string;
+        public SepToken(int line, string value) : base(line)
+        {
+            m_tokenType = TokenType.SEPERATOR;
+            m_string = value;
+        }
         public override string GetText()
         {
-            return ";";
+            return m_string;
         }
     }
 }
