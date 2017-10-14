@@ -19,9 +19,9 @@ namespace SlothScript.AST
         /// 求代码块的值
         /// </summary>
         /// <returns></returns>
-        public EvalValue Eval()
+        public EvalValue Eval(Environment env)
         {
-            return Evaluator.Eval(this);
+            return Evaluator.Eval(env, this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

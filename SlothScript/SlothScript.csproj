@@ -43,6 +43,7 @@
     <Compile Include="AST\AstNode.cs" />
     <Compile Include="AST\AstStatement.cs" />
     <Compile Include="AST\AstTokens.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="Parser.cs" />
