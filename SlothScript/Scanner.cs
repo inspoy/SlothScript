@@ -56,7 +56,7 @@ namespace SlothScript
             }
             else
             {
-                Utils.LogInfo("[L] 文件读取完毕");
+                Utils.LogDebug("[L] 文件读取完毕");
                 return Token.EOF;
             }
         }
@@ -110,7 +110,7 @@ namespace SlothScript
                 return;
             }
             string line = m_fileData[m_readingPos++];
-            Utils.LogInfo("[L] 读取了第{0}行: {1}", m_readingPos, line);
+            Utils.LogDebug("[L] 读取了第{0}行: {1}", m_readingPos, line);
             var matches = m_pattern.Matches(line);
             StringBuilder info = new StringBuilder();
             foreach (Match item in matches)
@@ -128,7 +128,7 @@ namespace SlothScript
             }
             if (info.ToString().Length > 0)
             {
-                Utils.LogInfo("[L] 匹配到了Token:" + info.ToString());
+                Utils.LogDebug("[L] 匹配到了Token:" + info.ToString());
             }
         }
 
