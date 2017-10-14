@@ -45,6 +45,7 @@
     <Compile Include="AST\AstTokens.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Evaluator.cs" />
+    <Compile Include="EvalValue.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

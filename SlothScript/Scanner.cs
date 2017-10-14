@@ -14,7 +14,7 @@ namespace SlothScript
         public static string REGEX_ID = @"(?<id>[A-Z_a-z]\w*)";
         public static string REGEX_NUMBER = @"(?<num>(\d+)|(\(\-\d+)\))";
         public static string REGEX_STRING = @"(?<str>""(\\*|\\\\|\\n|[^""])*"")";
-        public static string REGEX_PUNCT = @"(?<pun>==|<=|>=|&&|\|\||[+\-\*/<>=%])";
+        public static string REGEX_PUNCT = @"(?<pun>!=|==|<=|>=|&&|\|\||[+\-\*/<>=%])";
         public static string REGEX_KEY = @"(?<key>while|if|do|end|return)";
         public static string REGEX_SEP = @"(?<sep>[;\(\)])";
         public static string REGEX_OTHER = @"(?<other>.*)";

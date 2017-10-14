@@ -183,7 +183,7 @@ namespace SlothScript
     }
 
     /// <summary>
-    /// 分隔符Token，包括分号';'和括号'(',')'
+    /// 分隔符Token，包括分号';'，括号'(',')'
     /// </summary>
     public class SepToken : Token
     {

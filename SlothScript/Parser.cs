@@ -40,7 +40,7 @@ namespace SlothScript
         /// <returns></returns>
         private AstNode DoFactor()
         {
-            // factor   ::==    <id>|<num>|<string>|'('<expr>')'
+            // factor   ::==    <id>|<num>|<string>|'('<expr>')
             if (Is("(", TokenType.SEPERATOR))
             {
                 // 左括号
@@ -82,13 +82,33 @@ namespace SlothScript
         private AstExpression DoExpression()
         {
             // expr     ::==    <factor>{<pun><factor>}';'
-            // pun:     == <= >= && || + - * / < > = %
+            // pun:     != == <= >= && || + - * / < > = %
             List<AstNode> list = new List<AstNode>();
+            AstExpression ret;
             AstNode first = DoFactor();
+            if (Is("=", TokenType.PUNCT))
+            {
+                // 赋值操作
+                if (!(first is AstIdentifier))
+                {
+                    throw new ParseException(m_scanner.Peek(0), "非法的左值");
+                }
+                ret = new AstExpression(list, (first as AstIdentifier).token.ToString());
+                Pass("=", TokenType.PUNCT);
+                first = DoFactor();
+            }
+            else
+            {
+                ret = new AstExpression(list);
+            }
             list.Add(first);
             while (Is(null, TokenType.PUNCT))
             {
                 AstPun pun = new AstPun(m_scanner.Read());
+                if (pun.token.ToString() == "=")
+                {
+                    throw new ParseException(pun.token, "非法的赋值运算符");
+                }
                 list.Add(pun);
                 AstNode next = DoFactor();
                 list.Add(next);
@@ -105,9 +125,8 @@ namespace SlothScript
             else
             {
                 // 都不是
-                throw new ParseException(m_scanner.Peek(0), "Missing Semicolon");
+                throw new ParseException(m_scanner.Peek(0), "缺少分号");
             }
-            var ret = new AstExpression(list);
             Utils.LogDebug("[P] 表达式: {0}", ret.ToString());
             return ret;
         }
@@ -162,7 +181,7 @@ namespace SlothScript
                 Utils.LogDebug("[P] return语句: {0}", ret.ToString());
                 return ret;
             }
-            throw new ParseException(m_scanner.Peek(0), "Unknown statement");
+            throw new ParseException(m_scanner.Peek(0), "未知语句");
         }
 
         /// <summary>
@@ -252,7 +271,7 @@ namespace SlothScript
         /// <returns></returns>
         public string GetResult()
         {
-            return DoParse().Eval().ToString();
+            return DoParse().Eval(new Environment()).ToString();
         }
     }
 }

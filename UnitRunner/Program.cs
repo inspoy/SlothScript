@@ -13,10 +13,10 @@ namespace UnitRunner
     {
         private static string TEST_SCRIPT1 = @"
 sum = 0;
-i = 0;
-while i < 10 do
+i = 1;
+while i <= 10 do
   if i % 2 == 0 do
-    sum = sum + i; // 计算2+4+6...
+    sum = sum + i; // 计算2+4+...+10
   end;
   i = i + 1; // 循环计数器
 end;
@@ -53,7 +53,7 @@ return ans;
             var scanner = new Scanner(TEST_SCRIPT1);
             var parser = new Parser(scanner);
             //Console.WriteLine(parser.GetDumpString());
-            Console.WriteLine("执行结果:" + parser.GetResult());
+            Console.WriteLine("[UnitRunner] - 执行完成，结果:" + parser.GetResult());
         }
     }
 
@@ -75,16 +75,16 @@ return ans;
             }
             catch (RunTimeException e)
             {
-                Console.WriteLine("解释器运行时错误: " + e.Message);
+                Console.WriteLine("[UnitRunner] - 解释器运行时错误: " + e.Message);
             }
             catch (ParseException e)
             {
-                Console.WriteLine("解析时出错: " + e.Message);
+                Console.WriteLine("[UnitRunner] - 解析时出错: " + e.Message);
                 Console.WriteLine(e.StackTrace);
             }
             catch (Exception e)
             {
-                Console.WriteLine("其他错误: " + e.Message);
+                Console.WriteLine("[UnitRunner] - 其他错误: " + e.Message);
             }
 
             Console.ReadKey();

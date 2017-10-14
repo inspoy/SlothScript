@@ -10,7 +10,19 @@ namespace SlothScript.AST
     internal sealed class AstExpression : AstList
     {
         public AstExpression(List<AstNode> list) : base(list)
-        { }
+        {
+            isAssignExpression = false;
+            leftFactor = "";
+        }
+
+        public AstExpression(List<AstNode> list, string left) : base(list)
+        {
+            isAssignExpression = true;
+            leftFactor = left;
+        }
+
+        public readonly bool isAssignExpression;
+        public readonly string leftFactor;
 
         /// <summary>
         /// 操作数,索引从0开始
@@ -50,6 +62,16 @@ namespace SlothScript.AST
             {
                 throw new ParseException("不是有效运算符");
             }
+        }
+
+        public override string ToString()
+        {
+            string ret = base.ToString().Substring(1);
+            if (isAssignExpression)
+            {
+                ret = "(" + leftFactor + " = " + ret;
+            }
+            return ret;
         }
     }
 }

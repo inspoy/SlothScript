@@ -51,5 +51,42 @@ namespace SlothScript.AST
         public AstPun(Token t) : base(t)
         { }
         public string pun { get => token.GetText(); }
+
+        public static int GetPriority(AstPun val)
+        {
+            string op = val.token.ToString();
+            int ret = 0;
+            if (op == "*" || op == "/" || op == "%")
+            {
+                ret = 3;
+            }
+            else if (op == "+" || op == "-")
+            {
+                ret = 2;
+            }
+            else if (op == ">=" || op == "<=" || op == "==" || op == ">" || op == "<")
+            {
+                ret = 1;
+            }
+            else if (op == "&&" || op == "||")
+            {
+                ret = 0;
+            }
+            else
+            {
+                throw new RunTimeException("非法的运算符", val);
+            }
+            return ret;
+        }
+
+        public static bool operator >=(AstPun lhs, AstPun rhs)
+        {
+            return GetPriority(lhs) >= GetPriority(rhs);
+        }
+
+        public static bool operator <=(AstPun lhs, AstPun rhs)
+        {
+            return !(lhs >= rhs) || lhs.token.ToString().Equals(rhs.token.ToString());
+        }
     }
 }
