@@ -11,7 +11,7 @@ namespace SlothScript
         /// </summary>
         /// <param name="ast"></param>
         /// <returns></returns>
-        public static EvalValue Eval(Environment env, AstNode ast)
+        public static EvalValue Eval(IEnvironment env, AstNode ast)
         {
             var result = new EvalValue();
             if (ast is AstProg)
@@ -46,6 +46,15 @@ namespace SlothScript
             {
                 result = CalcIdentifier(env, ast as AstIdentifier);
             }
+            else if (ast is AstFuncDef)
+            {
+                env.GetMainEnv().SetFuncDef(ast as AstFuncDef);
+                result = EvalValue.ZERO; // 函数定义，不返回任何有意义的值
+            }
+            else if (ast is AstFunction)
+            {
+                result = CalcFunction(new FuncEnvironment(env, Utils.GetScopeString()), ast as AstFunction); // 函数调用
+            }
             else
             {
                 throw new RunTimeException("非法节点类型: " + ast.GetType().ToString(), ast);
@@ -54,21 +63,28 @@ namespace SlothScript
             return result;
         }
 
-        private static EvalValue CalcProg(Environment env, AstProg ast)
+        private static EvalValue CalcProg(IEnvironment env, AstProg ast)
         {
             var ret = new EvalValue();
             foreach (var item in ast)
             {
-                ret = item.Eval(env);
+                try
+                {
+                    ret = item.Eval(env);
+                }
+                catch (ReturnException)
+                {
+                    break;
+                }
             }
-            if (env.Get("return") != null)
+            if (env.Get("return@Main") != null)
             {
-                return env.Get("return");
+                return env.Get("return@Main");
             }
             return ret;
         }
 
-        private static EvalValue CalcExpression(Environment env, AstExpression ast)
+        private static EvalValue CalcExpression(IEnvironment env, AstExpression ast)
         {
             // 先计算右值
             var right = new EvalValue();
@@ -205,7 +221,7 @@ namespace SlothScript
             return right;
         }
 
-        private static EvalValue CalcIf(Environment env, AstIf ast)
+        private static EvalValue CalcIf(IEnvironment env, AstIf ast)
         {
             // 返回值为执行的最后一条语句或表达式的值
             var ret = new EvalValue();
@@ -233,7 +249,7 @@ namespace SlothScript
             return ret;
         }
 
-        private static EvalValue CalcWhile(Environment env, AstWhile ast)
+        private static EvalValue CalcWhile(IEnvironment env, AstWhile ast)
         {
             // 返回值为最后一条语句或表达式的值
             var ret = new EvalValue();
@@ -260,26 +276,25 @@ namespace SlothScript
             return ret;
         }
 
-        private static EvalValue CalcReturn(Environment env, AstReturn ast)
+        private static EvalValue CalcReturn(IEnvironment env, AstReturn ast)
         {
             var ret = ast.result.Eval(env);
-            // TODO: 中断执行
-            //ret.hasReturned = true;
-            env.Set("return", ret);
-            return ret;
+            env.Set("return@" + env.GetScopeName(), ret);
+            // 中断执行
+            throw new ReturnException(ast);
         }
 
-        private static EvalValue CalcString(Environment env, AstStringLiteral ast)
+        private static EvalValue CalcString(IEnvironment env, AstStringLiteral ast)
         {
             return new EvalValue(ast.str);
         }
 
-        private static EvalValue CalcNumber(Environment env, AstNumberLiteral ast)
+        private static EvalValue CalcNumber(IEnvironment env, AstNumberLiteral ast)
         {
             return new EvalValue(ast.value);
         }
 
-        private static EvalValue CalcIdentifier(Environment env, AstIdentifier ast)
+        private static EvalValue CalcIdentifier(IEnvironment env, AstIdentifier ast)
         {
             var val = env.Get(ast.name);
             if (val == null)
@@ -287,6 +302,42 @@ namespace SlothScript
                 throw new RunTimeException("未定义的标识符", ast);
             }
             return val;
+        }
+
+        private static EvalValue CalcFunction(FuncEnvironment env, AstFunction ast)
+        {
+            // 初始化实参
+            var callee = env.GetMainEnv().GetFuncDef(ast.token.GetText());
+            var paramList = callee.paramList;
+            for (var i = 0; i < paramList.length; ++i)
+            {
+                var item = paramList.GetName(i);
+                if (ast.args.ChildrenCount() <= i)
+                {
+                    throw new RunTimeException("实参不足", ast);
+                }
+                var argItem = ast.args.ChildAt(i) as AstExpression;
+                env.AddArg(item, argItem.Eval(env.parent));
+            }
+            // 执行函数体
+            var funcBody = callee.block;
+            var ret = new EvalValue();
+            foreach (var item in funcBody)
+            {
+                try
+                {
+                    ret = item.Eval(env);
+                }
+                catch (ReturnException)
+                {
+                    break;
+                }
+            }
+            if (env.Get("return@" + env.GetScopeName()) != null)
+            {
+                return env.Get("return@" + env.GetScopeName());
+            }
+            return ret;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace SlothScript
     /// <summary>
     /// 运行时错误
     /// </summary>
-    public class RunTimeException : Exception
+    internal class RunTimeException : Exception
     {
         public RunTimeException() : base()
         { }
@@ -29,7 +29,7 @@ namespace SlothScript
     /// <summary>
     /// 解析时错误
     /// </summary>
-    public class ParseException : Exception
+    internal class ParseException : Exception
     {
         public ParseException(Token t, string msg = "") :
             base("Syntax error around " + GetLocation(t) + ". " + msg)
@@ -48,6 +48,30 @@ namespace SlothScript
             {
                 return "\"" + t.GetText() + "\" at line " + t.lineNumber.ToString();
             }
+        }
+    }
+
+    /// <summary>
+    /// 用于实现Break语句所使用的异常，仅在内部产生并捕获
+    /// </summary>
+    internal class BreakException : Exception
+    {
+        public readonly AstNode ast;
+        public BreakException(AstNode t)
+        {
+            ast = t;
+        }
+    }
+
+    /// <summary>
+    /// 用于实现Return语句所使用的异常，仅在内部产生并捕获
+    /// </summary>
+    internal class ReturnException : Exception
+    {
+        public readonly AstNode ast;
+        public ReturnException(AstNode t)
+        {
+            ast = t;
         }
     }
 }

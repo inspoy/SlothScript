@@ -8,15 +8,15 @@ namespace SlothScript
     /// <summary>
     /// 词法分析器
     /// </summary>
-    public class Scanner
+    internal class Scanner
     {
         public static string REGEX_COMMET = @"(?<com>//.*)";
         public static string REGEX_ID = @"(?<id>[A-Z_a-z]\w*)";
         public static string REGEX_NUMBER = @"(?<num>(\d+)|(\(\-\d+)\))";
         public static string REGEX_STRING = @"(?<str>""(\\*|\\\\|\\n|[^""])*"")";
         public static string REGEX_PUNCT = @"(?<pun>!=|==|<=|>=|&&|\|\||[+\-\*/<>=%])";
-        public static string REGEX_KEY = @"(?<key>while|if|do|end|return)";
-        public static string REGEX_SEP = @"(?<sep>[;\(\)])";
+        public static string REGEX_KEY = @"(?<key>while|if|else|do|end|return|def)";
+        public static string REGEX_SEP = @"(?<sep>[,;\(\)])";
         public static string REGEX_OTHER = @"(?<other>.*)";
         public static string REGEX_TOTAL = @"\s*(" +
             REGEX_COMMET + "|" + REGEX_KEY + "|" + REGEX_ID + "|" + REGEX_NUMBER + "|" +
@@ -158,7 +158,7 @@ namespace SlothScript
                 if (strValue.StartsWith("(-"))
                 {
                     // 负数
-                    string fixedStrValue = strValue.Substring(2,strValue.Length-3);
+                    string fixedStrValue = strValue.Substring(2, strValue.Length - 3);
                     if (int.TryParse(fixedStrValue, out int val))
                     {
                         token = new NumToken(lineNumber, -val);
@@ -179,7 +179,7 @@ namespace SlothScript
             else if (groups["str"].Success)
             {
                 // 字符串字面量
-                token = new StrToken(lineNumber, strValue);
+                token = new StrToken(lineNumber, strValue.Substring(1, strValue.Length - 2));
             }
             else if (groups["pun"].Success)
             {

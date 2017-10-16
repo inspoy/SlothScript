@@ -66,12 +66,16 @@ namespace SlothScript.AST
 
         public override string ToString()
         {
-            string ret = base.ToString().Substring(1);
             if (isAssignExpression)
             {
+                string ret = base.ToString().Substring(1);
                 ret = "(" + leftFactor + " = " + ret;
+                return ret;
             }
-            return ret;
+            else
+            {
+                return base.ToString();
+            }
         }
     }
 }

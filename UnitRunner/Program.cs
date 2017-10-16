@@ -1,67 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using SlothScript;
 
 namespace UnitRunner
 {
     /// <summary>
-    /// 测试器
+    /// 主程序
     /// </summary>
-    class Runner
+    class Program
     {
         private static string TEST_SCRIPT1 = @"
 sum = 0;
 i = 1;
-while i <= 10 do
+while i <= 1000000 do
   if i % 2 == 0 do
-    sum = sum + i; // 计算2+4+...+10
+    sum = sum + i; // 计算2+4+...+100
   end;
   i = i + 1; // 循环计数器
 end;
 return sum; // 返回结果
 ";
         private static string TEST_SCRIPT2 = @"
-ans = 5 * ((-2) + 3);
-ans = ans * (-1);
-ans = ans - (-3) * 5;
-return ans;
+sum = """";
+i = 1;
+while i <= 5 do
+  sum = sum + i;
+  i = i + 1;
+end;
+return sum;
 ";
-        /// <summary>
-        /// 测试词法分析器
-        /// </summary>
-        public void RunScanner()
-        {
-            var scanner = new Scanner(TEST_SCRIPT2);
-            Token t;
-            StringBuilder res = new StringBuilder();
-            do
-            {
-                t = scanner.Read();
-                string typeString = t.GetType().ToString();
-                res.Append("<" + typeString.Substring(12, typeString.Length - 17) + ":" + t.GetText() + ">");
-            } while (t != Token.EOF);
-            Console.WriteLine(res);
-        }
+        private static string TEST_SCRIPT3 = @"
+def fib(n) do
+  if (n == 0)||(n == 1) do
+    return 1;
+  end;
+  return fib(n-2) + fib(n-1);
+end;
+return fib(10);
+";
 
-        /// <summary>
-        /// 测试语法分析器
-        /// </summary>
-        public void RunParser()
-        {
-            var scanner = new Scanner(TEST_SCRIPT1);
-            var parser = new Parser(scanner);
-            //Console.WriteLine(parser.GetDumpString());
-            Console.WriteLine("[UnitRunner] - 执行完成，结果:" + parser.GetResult());
-        }
-    }
-
-    /// <summary>
-    /// 主程序
-    /// </summary>
-    class Program
-    {
         /// <summary>
         /// 单元测试程序入口
         /// </summary>
@@ -70,21 +45,41 @@ return ans;
         {
             try
             {
-                var runner = new Runner();
-                runner.RunParser();
-            }
-            catch (RunTimeException e)
-            {
-                Console.WriteLine("[UnitRunner] - 解释器运行时错误: " + e.Message);
-            }
-            catch (ParseException e)
-            {
-                Console.WriteLine("[UnitRunner] - 解析时出错: " + e.Message);
-                Console.WriteLine(e.StackTrace);
+                //SlothScript.Program.TestParser(TEST_SCRIPT3);
+                //SlothScript.Program.TestParser(TEST_SCRIPT2);
+
+                // 最简用法
+                //var program = new SlothScript.Program(TEST_SCRIPT2);
+                //program.Compile();
+                //Console.WriteLine("ans=" + program.Run().returnVal);
+                //throw new Exception("BREAK");
+
+                // 详细用法
+                var app = new SlothScript.Program(TEST_SCRIPT3);
+                var compileResult = app.Compile();
+                if (compileResult.success)
+                {
+                    var startTime = DateTime.Now;
+                    var runResult = app.Run();
+                    var endTime = DateTime.Now;
+                    Console.WriteLine("耗时:{0}ms", (endTime - startTime).TotalMilliseconds);
+                    if (runResult.success)
+                    {
+                        Console.WriteLine("返回值 => " + runResult.returnVal);
+                    }
+                    else
+                    {
+                        Console.WriteLine("错误信息 => " + runResult.error);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("编译错误 => " + compileResult.output);
+                }
             }
             catch (Exception e)
             {
-                Console.WriteLine("[UnitRunner] - 其他错误: " + e.Message);
+                Console.WriteLine("[UnitRunner] - " + e.Message);
             }
 
             Console.ReadKey();

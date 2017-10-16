@@ -36,6 +36,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AST\AstFunction.cs" />
     <Compile Include="AST\AstProg.cs" />
     <Compile Include="AST\AstExpression.cs" />
     <Compile Include="AST\AstLeaf.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="EvalValue.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="Token.cs" />

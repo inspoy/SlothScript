@@ -61,7 +61,14 @@ namespace SlothScript.AST
 
         public override string ToString()
         {
-            return string.Format("(<if>{0}=>{1})", m_condition.ToString(), base.ToString());
+            if (m_elseBlock == null)
+            {
+                return string.Format("(<if>{0}=>{1})", m_condition, base.ToString());
+            }
+            else
+            {
+                return string.Format("(<if>{0}=>{1}!{2})", m_condition, base.ToString(), m_elseBlock);
+            }
         }
 
         public AstExpression condition { get => m_condition; }

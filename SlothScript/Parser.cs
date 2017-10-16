@@ -1,13 +1,13 @@
 ﻿using SlothScript.AST;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 
 namespace SlothScript
 {
     /// <summary>
     /// 语法分析器
     /// </summary>
-    public class Parser
+    internal class Parser
     {
         private Scanner m_scanner;
 
@@ -20,18 +20,50 @@ namespace SlothScript
         /// 执行解析
         /// </summary>
         /// <returns></returns>
-        private AstProg DoParse()
+        public AstProg DoParse()
         {
             /**
              * 语法BNF
-             * factor   ::==    <id>|<num>|<string>|'('<expr>')'
+             * factor   ::==    <id>'('[<args>]')'|<id>|<num>|<string>|'('<expr>')'
              * expr     ::==    <factor>{<pun><factor>}';'
              * state    ::==    <while><expr><do>{<expr>|<state>}<end>';'
              *          |       <if><expr><do>{<expr>|<state>}<end>';'
              *          |       <return><expr>';'
+             * func     ::==    <def><id>'('[<params>]')'<do>{<expr>|<state>}<end>';'
+             * params   ::==    <id>{','<id>}
+             * args     ::==    <expr>{','<expr>}
              * prog     ::==    {<exp>|<state>}
              */
-            return new AstProg(DoBlock());
+            return DoProg();
+        }
+
+        private AstProg DoProg()
+        {
+            List<AstNode> ret = new List<AstNode>();
+            while (true)
+            {
+                if (Is("EOF", TokenType.INVALID))
+                {
+                    // 文件结束
+                    break;
+                }
+                if (Is("def", TokenType.KEYWORD))
+                {
+                    // 函数定义
+                    ret.Add(DoFunction());
+                }
+                if (Is("while", TokenType.KEYWORD) || Is("if", TokenType.KEYWORD) || Is("return", TokenType.KEYWORD))
+                {
+                    // 语句
+                    ret.Add(DoStatement());
+                }
+                else
+                {
+                    // 表达式
+                    ret.Add(DoExpression());
+                }
+            }
+            return new AstProg(ret);
         }
 
         /// <summary>
@@ -55,7 +87,19 @@ namespace SlothScript
                 if (t.tokenType == TokenType.IDENTIFIER)
                 {
                     // 标识符
-                    return new AstIdentifier(t);
+                    if (Is("(", TokenType.SEPERATOR))
+                    {
+                        // 调用函数
+                        Pass("(", TokenType.SEPERATOR);
+                        var args = DoArgs();
+                        Pass(")", TokenType.SEPERATOR);
+                        return new AstFunction(t, args);
+                    }
+                    else
+                    {
+                        // 变量
+                        return new AstIdentifier(t);
+                    }
                 }
                 else if (t.tokenType == TokenType.NUMBER)
                 {
@@ -66,6 +110,11 @@ namespace SlothScript
                 {
                     // 字符串
                     return new AstStringLiteral(t);
+                }
+                else if (t.tokenType == TokenType.KEYWORD && t.GetText() == "def")
+                {
+                    // 函数定义
+                    throw new ParseException(t, "函数只能在语句之前定义");
                 }
                 else
                 {
@@ -118,9 +167,9 @@ namespace SlothScript
                 // 下一个Token是分号
                 Pass(";", TokenType.SEPERATOR);
             }
-            else if (Is("do", TokenType.KEYWORD) || Is(")", TokenType.SEPERATOR))
+            else if (Is("do", TokenType.KEYWORD) || Is(")", TokenType.SEPERATOR) || Is(",", TokenType.SEPERATOR))
             {
-                // 下一个Token是关键词'do'或者右括号')'
+                // 下一个Token是关键词'do'或者右括号')'或者逗号','
             }
             else
             {
@@ -164,6 +213,7 @@ namespace SlothScript
                 if (Is("else", TokenType.KEYWORD))
                 {
                     // 有else块
+                    Pass("else", TokenType.KEYWORD);
                     elseList = DoBlock();
                 }
                 Pass("end", TokenType.KEYWORD);
@@ -182,6 +232,73 @@ namespace SlothScript
                 return ret;
             }
             throw new ParseException(m_scanner.Peek(0), "未知语句");
+        }
+
+        /// <summary>
+        /// 解析函数定义func
+        /// </summary>
+        /// <returns></returns>
+        private AstFuncDef DoFunction()
+        {
+            Pass("def", TokenType.KEYWORD);
+            var list = new List<AstNode>
+            {
+                new AstIdentifier(Pass(null, TokenType.IDENTIFIER))
+            };
+            Pass("(", TokenType.SEPERATOR);
+            list.Add(DoParams());
+            Pass(")", TokenType.SEPERATOR);
+            Pass("do", TokenType.KEYWORD);
+            list.Add(new AstFuncBody(DoBlock()));
+            Pass("end", TokenType.KEYWORD);
+            Pass(";", TokenType.SEPERATOR);
+            return new AstFuncDef(list);
+        }
+
+        /// <summary>
+        /// 解析形参列表params
+        /// </summary>
+        /// <returns></returns>
+        private AstParameters DoParams()
+        {
+            if (Is(")", TokenType.SEPERATOR))
+            {
+                // 没有参数
+                return new AstParameters(new List<AstNode>());
+            }
+            var list = new List<AstNode>();
+            var t = Pass(null, TokenType.IDENTIFIER);
+            list.Add(new AstIdentifier(t));
+            while (Is(",", TokenType.SEPERATOR))
+            {
+                Pass(",", TokenType.SEPERATOR);
+                t = Pass(null, TokenType.IDENTIFIER);
+                list.Add(new AstIdentifier(t));
+            }
+            return new AstParameters(list);
+        }
+
+        /// <summary>
+        /// 解析实参列表args
+        /// </summary>
+        /// <returns></returns>
+        private AstArgs DoArgs()
+        {
+            if (Is(")", TokenType.SEPERATOR))
+            {
+                // 没有参数
+                return new AstArgs(new List<AstNode>());
+            }
+            var list = new List<AstNode>
+            {
+                DoExpression()
+            };
+            while (Is(",", TokenType.SEPERATOR))
+            {
+                Pass(",", TokenType.SEPERATOR);
+                list.Add(DoExpression());
+            }
+            return new AstArgs(list);
         }
 
         /// <summary>
@@ -241,7 +358,7 @@ namespace SlothScript
         /// </summary>
         /// <param name="name">为null时表示任意</param>
         /// <param name="type"></param>
-        private void Pass(string name, TokenType type)
+        private Token Pass(string name, TokenType type)
         {
             Token t = m_scanner.Read();
             bool checkName = true;
@@ -254,24 +371,7 @@ namespace SlothScript
             {
                 throw new ParseException(t, "非法的Token: " + name);
             }
-        }
-
-        /// <summary>
-        /// [测试用]生成语法树生成的字符串
-        /// </summary>
-        /// <returns></returns>
-        public string GetDumpString()
-        {
-            return DoParse().ToString();
-        }
-
-        /// <summary>
-        /// [测试用]获取程序返回值
-        /// </summary>
-        /// <returns></returns>
-        public string GetResult()
-        {
-            return DoParse().Eval(new Environment()).ToString();
+            return t;
         }
     }
 }

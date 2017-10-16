@@ -7,7 +7,7 @@ namespace SlothScript
     /// <summary>
     /// 单词类型
     /// </summary>
-    public enum TokenType
+    internal enum TokenType
     {
         INVALID = 0,
 
@@ -46,7 +46,7 @@ namespace SlothScript
     /// 单词基类
     /// 这是一个抽象类，不可直接使用
     /// </summary>
-    public abstract class Token
+    internal abstract class Token
     {
         public static Token EOF = new EofToken(-1);
 
@@ -81,7 +81,7 @@ namespace SlothScript
     /// <summary>
     /// 标示文件结束的Token
     /// </summary>
-    public class EofToken : Token
+    internal class EofToken : Token
     {
         public EofToken(int line) : base(line)
         {
@@ -96,7 +96,7 @@ namespace SlothScript
     /// <summary>
     /// 标识符Token
     /// </summary>
-    public class IdToken : Token
+    internal class IdToken : Token
     {
         private string m_text;
         public IdToken(int line, string value) : base(line)
@@ -113,7 +113,7 @@ namespace SlothScript
     /// <summary>
     /// 整数Token
     /// </summary>
-    public class NumToken : Token
+    internal class NumToken : Token
     {
         private int m_number;
         public NumToken(int line, int value) : base(line)
@@ -134,7 +134,7 @@ namespace SlothScript
     /// <summary>
     /// 字符串Token
     /// </summary>
-    public class StrToken : Token
+    internal class StrToken : Token
     {
         private string m_string;
         public StrToken(int line, string value) : base(line)
@@ -151,7 +151,7 @@ namespace SlothScript
     /// <summary>
     /// 运算符Token
     /// </summary>
-    public class PunToken : Token
+    internal class PunToken : Token
     {
         private string m_punct;
         public PunToken(int line, string value) : base(line)
@@ -168,7 +168,7 @@ namespace SlothScript
     /// <summary>
     /// 关键字Token
     /// </summary>
-    public class KeyToken : Token
+    internal class KeyToken : Token
     {
         private string m_string;
         public KeyToken(int line, string value) : base(line)
@@ -183,9 +183,9 @@ namespace SlothScript
     }
 
     /// <summary>
-    /// 分隔符Token，包括分号';'，括号'(',')'
+    /// 分隔符Token，包括分号';'，括号'(',')'，逗号','
     /// </summary>
-    public class SepToken : Token
+    internal class SepToken : Token
     {
         private string m_string;
         public SepToken(int line, string value) : base(line)

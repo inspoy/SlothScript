@@ -1,11 +1,11 @@
 ﻿namespace SlothScript
 {
-    public enum EvalValueType
+    internal enum EvalValueType
     {
         INT = 0,
         STRING = 1,
     }
-    public class EvalValue
+    internal class EvalValue
     {
         public static EvalValue ZERO = new EvalValue();
         public static EvalValue TRUE = new EvalValue(1);
