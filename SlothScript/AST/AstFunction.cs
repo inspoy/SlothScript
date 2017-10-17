@@ -90,5 +90,24 @@ namespace SlothScript.AST
         public AstArgs(List<AstNode> list) : base(list)
         {
         }
+
+        public object[] ToArgArray(IEnvironment env)
+        {
+            object[] ret = new object[ChildrenCount()];
+            for (int i = 0; i < ChildrenCount(); ++i)
+            {
+                var expr = ChildAt(i);
+                var val = expr.Eval(env);
+                if (val.type == EvalValueType.INT)
+                {
+                    ret[i] = val.intVal;
+                }
+                else if (val.type == EvalValueType.STRING)
+                {
+                    ret[i] = val.strVal;
+                }
+            }
+            return ret;
+        }
     }
 }

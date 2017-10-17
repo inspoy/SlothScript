@@ -16,11 +16,13 @@ namespace SlothScript
     {
         Dictionary<string, EvalValue> m_hashMap;
         private Dictionary<string, AstFuncDef> m_dictFunctions;
+        VM m_vm;
 
-        public MainEnvironment()
+        public MainEnvironment(VM vm = null)
         {
             m_hashMap = new Dictionary<string, EvalValue>();
             m_dictFunctions = new Dictionary<string, AstFuncDef>();
+            m_vm = vm;
         }
 
         /// <summary>
@@ -55,13 +57,28 @@ namespace SlothScript
             return "Main";
         }
 
+        public ExternalFunction GetCsFuncDef(string name)
+        {
+            if (m_vm != null && m_vm.GetCsFunc(name) != null)
+            {
+                return m_vm.GetCsFunc(name);
+            }
+            return null;
+        }
+
         public AstFuncDef GetFuncDef(string name)
         {
-            if (!m_dictFunctions.ContainsKey(name))
+            // 优先自己定义的
+            if (m_dictFunctions.ContainsKey(name))
             {
-                throw new RunTimeException("函数未定义:" + name);
+                return m_dictFunctions[name];
             }
-            return m_dictFunctions[name];
+            // 没有的话找虚拟机中其他库定义的
+            if (m_vm != null && m_vm.GetFuncDef(name) != null)
+            {
+                return m_vm.GetFuncDef(name);
+            }
+            return null;
         }
 
         public void SetFuncDef(AstFuncDef func)
@@ -71,6 +88,11 @@ namespace SlothScript
                 throw new RunTimeException("函数重复定义:" + func.name);
             }
             m_dictFunctions[func.name] = func;
+        }
+
+        public Dictionary<string, AstFuncDef> GetAllFuncDef()
+        {
+            return m_dictFunctions;
         }
 
         public MainEnvironment GetMainEnv()

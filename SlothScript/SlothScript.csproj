@@ -54,6 +54,7 @@
     <Compile Include="Scanner.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="VM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

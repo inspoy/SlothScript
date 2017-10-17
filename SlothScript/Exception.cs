@@ -32,7 +32,7 @@ namespace SlothScript
     internal class ParseException : Exception
     {
         public ParseException(Token t, string msg = "") :
-            base("Syntax error around " + GetLocation(t) + ". " + msg)
+            base("在" + GetLocation(t) + "附近有语法错误. " + msg)
         { }
 
         public ParseException(string msg) : base(msg)
@@ -42,11 +42,11 @@ namespace SlothScript
         {
             if (t == Token.EOF)
             {
-                return "the last line";
+                return "最后一行";
             }
             else
             {
-                return "\"" + t.GetText() + "\" at line " + t.lineNumber.ToString();
+                return string.Format("第{0}行的\"{1}\"处", t.lineNumber, t);
             }
         }
     }

@@ -308,36 +308,52 @@ namespace SlothScript
         {
             // 初始化实参
             var callee = env.GetMainEnv().GetFuncDef(ast.token.GetText());
-            var paramList = callee.paramList;
-            for (var i = 0; i < paramList.length; ++i)
+            if (callee != null)
             {
-                var item = paramList.GetName(i);
-                if (ast.args.ChildrenCount() <= i)
+                // 脚本方法
+                var paramList = callee.paramList;
+                for (var i = 0; i < paramList.length; ++i)
                 {
-                    throw new RunTimeException("实参不足", ast);
+                    var item = paramList.GetName(i);
+                    if (ast.args.ChildrenCount() <= i)
+                    {
+                        throw new RunTimeException("实参不足", ast);
+                    }
+                    var argItem = ast.args.ChildAt(i) as AstExpression;
+                    env.AddArg(item, argItem.Eval(env.parent));
                 }
-                var argItem = ast.args.ChildAt(i) as AstExpression;
-                env.AddArg(item, argItem.Eval(env.parent));
+                // 执行函数体
+                var funcBody = callee.block;
+                var ret = new EvalValue();
+                foreach (var item in funcBody)
+                {
+                    try
+                    {
+                        ret = item.Eval(env);
+                    }
+                    catch (ReturnException)
+                    {
+                        break;
+                    }
+                }
+                if (env.Get("return@" + env.GetScopeName()) != null)
+                {
+                    return env.Get("return@" + env.GetScopeName());
+                }
+                return ret;
             }
-            // 执行函数体
-            var funcBody = callee.block;
-            var ret = new EvalValue();
-            foreach (var item in funcBody)
+            else
             {
-                try
+                var csm = env.GetMainEnv().GetCsFuncDef(ast.token.GetText());
+                if (csm != null)
                 {
-                    ret = item.Eval(env);
-                }
-                catch (ReturnException)
-                {
-                    break;
+                    // CS方法
+                    var csRet = csm(ast.args.ToArgArray(env));
+                    var ret = new EvalValue(csRet);
+                    return ret;
                 }
             }
-            if (env.Get("return@" + env.GetScopeName()) != null)
-            {
-                return env.Get("return@" + env.GetScopeName());
-            }
-            return ret;
+            throw new RunTimeException("函数未定义:" + ast.token.GetText() + "()", ast);
         }
     }
 }

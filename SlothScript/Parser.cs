@@ -47,12 +47,13 @@ namespace SlothScript
                     // 文件结束
                     break;
                 }
+
                 if (Is("def", TokenType.KEYWORD))
                 {
                     // 函数定义
                     ret.Add(DoFunction());
                 }
-                if (Is("while", TokenType.KEYWORD) || Is("if", TokenType.KEYWORD) || Is("return", TokenType.KEYWORD))
+                else if (Is("while", TokenType.KEYWORD) || Is("if", TokenType.KEYWORD) || Is("return", TokenType.KEYWORD))
                 {
                     // 语句
                     ret.Add(DoStatement());

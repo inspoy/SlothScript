@@ -14,6 +14,20 @@
         public EvalValue()
         { }
 
+        public EvalValue(ExternalFunctionReturnValue val)
+        {
+            if (val.type == ExternalFunctionReturnValueType.INT)
+            {
+                intVal = val.intVal;
+                type = EvalValueType.INT;
+            }
+            else if(val.type == ExternalFunctionReturnValueType.STRING)
+            {
+                strVal = val.strVal;
+                type = EvalValueType.STRING;
+            }
+        }
+
         public EvalValue(int val)
         {
             intVal = val;

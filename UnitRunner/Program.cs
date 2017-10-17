@@ -37,6 +37,79 @@ end;
 return fib(10);
 ";
 
+        static void SimplistUsage(string script)
+        {
+            // 最简用法
+            var program = new SlothScript.Program(script);
+            program.Compile();
+            Console.WriteLine("ans=" + program.Run().returnVal);
+        }
+
+        static void CompleteUsage(string script)
+        {
+            // 详细用法
+            var app = new SlothScript.Program(script);
+            var compileResult = app.Compile();
+            if (compileResult.success)
+            {
+                var startTime = DateTime.Now;
+                var runResult = app.Run();
+                var endTime = DateTime.Now;
+                Console.WriteLine("耗时:{0}ms", (endTime - startTime).TotalMilliseconds);
+                if (runResult.success)
+                {
+                    Console.WriteLine("返回值 => " + runResult.returnVal);
+                }
+                else
+                {
+                    Console.WriteLine("错误信息 => " + runResult.error);
+                }
+            }
+            else
+            {
+                Console.WriteLine("编译错误 => " + compileResult.output);
+            }
+        }
+
+        static int TestFoo(int a, int b)
+        {
+            return Math.Min(a, b);
+        }
+
+        static SlothScript.ExternalFunctionReturnValue SlothScriptExport_TestFoo(params object[] args)
+        {
+            return new SlothScript.ExternalFunctionReturnValue(TestFoo((int)args[0], (int)args[1]));
+        }
+
+        static void VmUsage()
+        {
+            var vm = new SlothScript.VM();
+            // 添加函数库脚本到虚拟机
+            var lib = new SlothScript.Program(@"
+// 函数库
+def max(x, y) do
+  if x > y do
+    return x;
+  else
+    return y;
+  end;
+end;
+");
+            lib.Compile();
+            vm.AddScriptLib(lib);
+            // 添加CS方法到虚拟机
+            vm.AddCsharpMethod("TestFoo", SlothScriptExport_TestFoo);
+            // 在另外一个脚本中调用这两个方法
+            var app = new SlothScript.Program(@"
+// 测试函数库
+a = 10;
+b = TestFoo(5,15); // csharp方法
+return max(a, b);
+");
+            app.Compile();
+            app.Run(vm); // 将vm作为参数传入，app即可使用vm的环境来运行
+        }
+
         /// <summary>
         /// 单元测试程序入口
         /// </summary>
@@ -45,37 +118,7 @@ return fib(10);
         {
             try
             {
-                //SlothScript.Program.TestParser(TEST_SCRIPT3);
-                //SlothScript.Program.TestParser(TEST_SCRIPT2);
-
-                // 最简用法
-                //var program = new SlothScript.Program(TEST_SCRIPT2);
-                //program.Compile();
-                //Console.WriteLine("ans=" + program.Run().returnVal);
-                //throw new Exception("BREAK");
-
-                // 详细用法
-                var app = new SlothScript.Program(TEST_SCRIPT3);
-                var compileResult = app.Compile();
-                if (compileResult.success)
-                {
-                    var startTime = DateTime.Now;
-                    var runResult = app.Run();
-                    var endTime = DateTime.Now;
-                    Console.WriteLine("耗时:{0}ms", (endTime - startTime).TotalMilliseconds);
-                    if (runResult.success)
-                    {
-                        Console.WriteLine("返回值 => " + runResult.returnVal);
-                    }
-                    else
-                    {
-                        Console.WriteLine("错误信息 => " + runResult.error);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("编译错误 => " + compileResult.output);
-                }
+                VmUsage();
             }
             catch (Exception e)
             {

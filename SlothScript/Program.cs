@@ -86,6 +86,8 @@ namespace SlothScript
         private Parser m_parser;
         private AST.AstProg m_prog;
 
+        internal MainEnvironment mainEnv;
+
         /// <summary>
         /// 测试用，词法分析器
         /// </summary>
@@ -156,7 +158,7 @@ namespace SlothScript
         /// 运行脚本程序
         /// </summary>
         /// <returns></returns>
-        public RunResult Run()
+        public RunResult Run(VM vm = null)
         {
             var ret = new RunResult();
             if (!isCompiled)
@@ -164,18 +166,20 @@ namespace SlothScript
                 ret.error = "尚未编译";
                 return ret;
             }
-            var env = new MainEnvironment();
+            mainEnv = new MainEnvironment(vm);
             try
             {
-                ret.returnVal = m_prog.Eval(env).ToString();
+                ret.returnVal = m_prog.Eval(mainEnv).ToString();
                 ret.success = true;
             }
             catch (RunTimeException e)
             {
+                mainEnv = null;
                 ret.error = "运行时错误：" + e.Message;
             }
             catch (Exception e)
             {
+                mainEnv = null;
                 ret.error = string.Format("其他错误[{0}]-{1}", e.GetType().ToString(), e.Message);
             }
             Utils.LogDebug("脚本执行完毕：" + ret.ToString());
