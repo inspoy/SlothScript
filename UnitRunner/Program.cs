@@ -98,16 +98,17 @@ end;
             lib.Compile();
             vm.AddScriptLib(lib);
             // 添加CS方法到虚拟机
-            vm.AddCsharpMethod("TestFoo", SlothScriptExport_TestFoo);
+            vm.AddCsharpMethod("cs_TestFoo", SlothScriptExport_TestFoo);
             // 在另外一个脚本中调用这两个方法
             var app = new SlothScript.Program(@"
 // 测试函数库
 a = 10;
-b = TestFoo(5,15); // csharp方法
+b = cs_TestFoo(5,15); // csharp方法
 return max(a, b);
 ");
             app.Compile();
-            app.Run(vm); // 将vm作为参数传入，app即可使用vm的环境来运行
+            Console.WriteLine(app.Run(vm)); // 将vm作为参数传入，app即可使用vm的环境来运行
+            Console.WriteLine(vm.CallScriptFunction("max", 22, 33)); // csharp调用脚本函数
         }
 
         /// <summary>

@@ -355,5 +355,50 @@ namespace SlothScript
             }
             throw new RunTimeException("函数未定义:" + ast.token.GetText() + "()", ast);
         }
+
+        public static EvalValue CallFunc(FuncEnvironment env, AstFuncDef callee, params object[] args)
+        {
+            var paramList = callee.paramList;
+            if (args.Length < paramList.length)
+            {
+                throw new RunTimeException(string.Format("实参不足: 需要{0}个，提供了{0}个", paramList.length, args.Length));
+            }
+            for (var i = 0; i < paramList.length; ++i)
+            {
+                var item = paramList.GetName(i);
+                var argItem = args[i];
+                if (argItem is System.Int32)
+                {
+                    env.AddArg(item, new EvalValue((int)argItem));
+                }
+                else if (argItem is System.String)
+                {
+                    env.AddArg(item, new EvalValue(argItem as System.String));
+                }
+                else
+                {
+                    throw new RunTimeException("参数类型不正确:" + argItem.GetType().ToString());
+                }
+            }
+            // 执行函数体
+            var funcBody = callee.block;
+            var ret = new EvalValue();
+            foreach (var item in funcBody)
+            {
+                try
+                {
+                    ret = item.Eval(env);
+                }
+                catch (ReturnException)
+                {
+                    break;
+                }
+            }
+            if (env.Get("return@" + env.GetScopeName()) != null)
+            {
+                return env.Get("return@" + env.GetScopeName());
+            }
+            return ret;
+        }
     }
 }

@@ -21,6 +21,11 @@ namespace SlothScript
             type = ExternalFunctionReturnValueType.INT;
             intVal = val;
         }
+        public ExternalFunctionReturnValue(long val)
+        {
+            type = ExternalFunctionReturnValueType.INT;
+            intVal = (int)val;
+        }
         public ExternalFunctionReturnValue(string val)
         {
             type = ExternalFunctionReturnValueType.STRING;
@@ -107,6 +112,34 @@ namespace SlothScript
         public void AddCsharpMethod(string name, ExternalFunction method)
         {
             m_dictCsFunc[name] = method;
+        }
+
+        /// <summary>
+        /// Csharp调用脚本函数
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public RunResult CallScriptFunction(string name, params object[] args)
+        {
+            var func = GetFuncDef(name);
+            var ret = new RunResult();
+            var mainEnv = new MainEnvironment(this);
+            var funcEnv = new FuncEnvironment(mainEnv, Utils.GetScopeString());
+            try
+            {
+                ret.returnVal = Evaluator.CallFunc(funcEnv, func, args).ToString();
+                ret.success = true;
+            }
+            catch (RunTimeException e)
+            {
+                ret.error = "运行时错误：" + e.Message;
+            }
+            catch (Exception e)
+            {
+                ret.error = string.Format("其他错误[{0}]-{1}", e.GetType().ToString(), e.Message);
+            }
+            Utils.LogDebug("脚本函数执行完毕：" + ret.ToString());
+            return ret;
         }
     }
 }

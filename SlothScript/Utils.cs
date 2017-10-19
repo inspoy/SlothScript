@@ -15,7 +15,9 @@ namespace SlothScript
         /// <param name="msg"></param>
         public static void LogDebug(string msg)
         {
+#if DEBUG
             Console.WriteLine("[SlothScript] - " + msg);
+#endif
         }
 
         /// <summary>
@@ -25,7 +27,9 @@ namespace SlothScript
         /// <param name="args"></param>
         public static void LogDebug(string format, params object[] args)
         {
+#if DEBUG
             Console.WriteLine("[SlothScript] - " + string.Format(format, args));
+#endif
         }
 
         public static string GetScopeString()
